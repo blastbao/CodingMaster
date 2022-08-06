@@ -8,10 +8,15 @@
 ;百度/微博：玉刚谈
 ;来聊天呀：1054728152（QQ群）
 ;***********************************************
-NUL equ 0x00
-SETCHAR equ 0x07
-VIDEOMEM equ 0xb800
+
+
+; 常量
+NUL       equ 0x00
+SETCHAR   equ 0x07
+VIDEOMEM  equ 0xb800
 STRINGLEN equ 0xffff
+
+; 代码段
 section code align=16 vstart=0x7c00
   mov si, SayHello
   xor di, di
@@ -19,31 +24,37 @@ section code align=16 vstart=0x7c00
   mov si, SayByeBye
   call PrintString
   jmp End
+
 PrintString:
   .setup:
-  mov ax, VIDEOMEM
+  mov ax, VIDEOMEM    ; 显存基址
   mov es, ax
 
-  mov bh, SETCHAR
-  mov cx, STRINGLEN
+  mov bh, SETCHAR     ; 显示模式
+  mov cx, STRINGLEN   ; 字符数
 
   .printchar:
+  ; 取当前字符
   mov bl, [ds:si]
-  inc si
+  inc si ; si += 1
+
+  ; 写入字符到显存
   mov [es:di], bl
-  inc di
+  inc di ; di += 1
+  ; 写入模式到显存
   mov [es:di], bh
-  inc di
+  inc di ; di += 1
+
   or bl, NUL
   jz .return
   loop .printchar
   .return:
   ret
 
-SayHello db 'Hi there,I am Coding Master!'
-         db 0x00
+SayHello  db 'Hi there,I am Coding Master!'
+          db 0x00  ; "\0"
 SayByeBye db 'I think you can handle it,bye!'
-          db 0x00
+          db 0x00 ; "\0"
 
 End: jmp End
 times 510-($-$$) db 0
